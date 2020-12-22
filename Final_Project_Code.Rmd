@@ -1,0 +1,562 @@
+---
+title: "Household Income Associated with Awareness of Canada's Food Guide (2007): A Logistic Regression and Propensity Score Analysis of the Accessibility and Effects of CFG"
+author: "Jeffrey Li 1005454919"
+date: "12/4/2020"
+output:
+  pdf_document:
+    fig_caption: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**ABSTRACT**
+  
+  The purpose of this analysis was to build a model from the 2017-2018 Canadian Community Health Survey to explore the factors which limited or enhanced Canadian's exposure to Canada's Food Guide. In addition, supplementary analysis including propensity score matching (PSM) was employed to evaluate whether biased information from the food guide regarding fruit juice actually influenced Canadian consumption and dietary habits. Furthermore, CFG awareness-to-usage conversion rate was also examined. The methods employed to prepare the data for modeling included a cleaning and removal of NA measurements, establishing broader age brackets, isolating the observations of interest, and eliminating categorical variables from the data set which contained only 1 level. The logistic model was built using stepwise backwards selection and the final model included variables age, sex, education, country of birth, and family income. The model has an area under the curve (AUC-ROC) of 0.88 and a prediction error of 1.077413. Overall, this model, though surprising because access to health services, unmet health care needs, and food security were not significant, informs the government that access to the food guide is more so affected by age, sex, education, country of birth, and income. PSM revealed that food guide awareness did not significantly influence fruit juice consumption and the awareness-to-usage conversion rate was approximately 59%. These results confirm that more effective policy is need to ensure more Canadians actively access Canada's Food Guide and adhere to its guidelines. Code and data supporting this analysis can be found at (https://github.com/jeffxinli/STA304). 
+  
+*Keywords:*
+    Human, nutrition, public health, food guide, Canada, healthcare, logistic regression, propensity score, CCHS, Canadian Community Health Survey.
+  
+**INTRODUCTION**
+
+  Human nutrition is the science which explores the links between all aspects of human health and nutrition, often identifying important nutrients and their roles in not only preventing disease, but also in maintaining and improving health. While poor nutrition is often associated with poverty, especially in developing countries, advancements in scientific literature highlight that no human population is invulnerable to improper nutrition. In Canada, cardiovascular disease (CVD), diabetes, and kidney disease are among the top leading causes of death alongside respiratory disease, influenza, and Alzheimer's (StatsCan, 2011). Nutrition research, both observational studies and clinical trials, have elucidated the associations between nutrition and diseases like CVD as well as the nutritional causes and biomarkers of disease. More novel evidence even suggests the importance of proper nutrition in maintaining cognitive function in older adults and treating Alzheimer's. Given the expansive scientific evidence suggesting the importance of proper nutrition on health, the government of Canada aims to encourage healthy dietary habits within its population through the official food guide.
+  
+  The history of Canadian food guides is complicated; the first version released in 1942 was called "Canada's Official Food Rules" and was more focused on wartime nutrition and limitations (Government of Canada, 2007). Subsequent versions brought slight improvements; however, through the years the guide was not only adjusted for new technologies in food processing and storage but also in emerging evidence. The most well-known food guide today is that from 2007 called "2007 Eating Well with Canada's Food Guide". This guide was by far the most comprehensive at the time with updated nutrient reference values, revision of scientific evidence, consultations, and the considerations of the evolution of Canada's food supply and the lifestyles of its people (Government of Canada, 2007). This guide, since its publication, has been marketed across Canada through multiple campaigns and schools are pushed to familiarize students with the guide. However, in January 2019, the food guide was revised. In fact, the 2007 guide was found to be scientifically inaccurate and biased towards many Canadian industries like the meat and diary industries. Other information that were debunked include the substitution of fruits with juice and fruit snacks as well as the claim that all proteins are equally healthy (Government of Canada, 2019). The new guide, unbiased and verified by nutrition experts, attempts to provide Canadians with the most up-to-date and accurate information. 
+  
+  Nonetheless, despite advancements in scientific literature and parallel public health policies, the number Canadians suffering from diseases linked to nutrition is deeply concerning. From the high incidence of obesity and heart disease to the prevalence of diabetes, this increase in disease among Canadians will bring unprecedented pressure on Canadian health care systems. This brings experts, scientists, and public health officials to question the effectiveness of the food guide. That is, are Canadians aware it exists, if so, are they adhering to it and how well? This study aims to evaluate through a binomial logistic model built using the 2017-2018 Canadian Community Health Survey, the people who are more or less likely to know about the food guide. Furthermore, supplemental analyses will briefly evaluate the effects of the food guide on the dietary habits of Canadians as well as the awareness-to-use conversion rate, defined as the proportion of those who have seen or heard of the food guide and actually use it. The methodology section will detail the survey and its data as well as the models used in the analysis. Indeed, the survey was conducted in 2017-2018 and reported on the 2007 guide; however, given the establishment and popularity of the 2007 guide through the past decade and a half, the results should provide an accurate estimation of the characteristics of the people who are more likely to be uninformed or heavily affected. Then, the findings of the analysis will be presented in the results section followed by a discussion of the analysis including a summary, conclusions, and limitations and next steps. Ultimately, this study would be able to help the Government of Canada direct marketing, education, and outreach resources to more vulnerable groups. Common variables such as age and gender will be considered alongside variables such as access to health care and food security. Through this study, the government will have a better understanding of the people it needs to help and the shortcomings of the 2007 CFG as well as identify the main potential barriers between the 2019 Canada's Food Guide and Canadians.
+
+
+
+**METHODOLOGY**
+
+**Canadian Community Health Survey**
+
+  The data for this study was from the 2017-2018 Canadian Community Health Survey a cross sectional survey which collects information related to health status, health care, and other determinants of health in the Canadian population. The survey is offered every two years with the objectives of (1) supporting health surveillance programs; (2) providing a single data source for research on populations and rare characteristics; (3) providing information accessible to all community researchers; and (4) creating a flexible instrument that can gather information to address emerging issues relating to population health. The target population of the CCHS is the Canadian population aged 12 years and older living in the provinces and territories. The sampling frame, though, differs since the CCHS officially excludes those living in Aboriginal settlements, full-time members of the Canadian Forces, youth aged 12-17 in foster homes, institutionalized populations, and those living in the Quebec health regions of Nunavik and Terres Cries de la Baie James. Nonetheless, the CCHS is still representative of the Canadian population as these excluded groups represent less than 3% of the target population. Finally, the CCHS aims to achieve a sample size of 130 000 respondents. They recruit their respondents using a multi-stage sample allocation strategy. Overall, to ensure fair distribution according to the health regions and provinces, their sampling is weighted to the size of each population.
+  Overall, there are 1051 variables measured; however, while some variables like age and sex are directly measured through the questionnaire, other variables like "Unmet health care needs" are derived from health care needs variables asked directly through the survey. These variables are intended to broadly cover population health aspects. While they are useful in visualizing the general state of factors, for example health care needs, the meaningfulness of the variable is reduced since we do not actually know the magnitude of the seriousness of the unmet health care needs. Nonetheless, in a study looking to broadly examine food guide knowledge and use, these variables may be very informative of general trends. A general weaknesses of this survey are the large non-responses to certain questions; certain variables, like those regarding nutrition and CFG have around 1-3 thousand responses out of a sample of over 100 000 observations.
+  
+**Data**
+
+  The data retrieved for this study is only a subset of the 2017-2018 CCHS comprising of 21 of the 1051 variables. The variables selected were hypothesized to relate or be associated to food guide use/awareness. Though variables like "eat leafy green vegetables" were available and probably have high association with food guide use/awareness, they were not selected due to the meaningfulness of the variable. That is knowing that food guide knowledge is associated with leafy vegetable consumption is not very helpful in identifying those with greater risk of decreased awareness of the food guide. In sum, the subset data extracted from the CCHS contains 113 290 observations of 21 variables. The raw data is plotted to visualize the general trends and distributions in the raw data (Appendix 1). The data was slightly adjusted for the plots as the variable names are coded, however, the data itself was left untouched. From the plots, it becomes clear that many responses regarding the food guide are NA and the sample size for analysis will be smaller than expected. In addition, age and gender seem well distributed as well as income. It is noteworthy that most respondents were born in Canada and report food security. However, it will be interesting to verify whether those who report no to having heard or seen Canada's food guide generally fit into either of these highly skewed groups. 
+  First, the coded variable names were changed to reflect the factors measured (e.g. DODIS changed to Distress). Then, only "heard or seen Canadian food guide" was kept as the dependent variable. Variables relating to food guide use were kept in the data set for supplementary analysis of those who are aware of Canada's food guide. Subsequently, NA responses were removed and variables "height", "weight", and "culture/race" were completely removed because they contained too many NA responses. Furthermore, the age categories were broadened to 15-24yrs (Young Adult). 25-39yrs (Adult), 40-59yrs (Middle Age), and 60 and over (Old). Finally, each variable was analyzed to ensure that responses existed in all levels of the variable. Interestingly, access to health services and unmet health care needs only contained 'no' responses. Similarly, Distress only contained yes and Depression and Health insurance only contained no. As a result, these variables were not included in our model; however, they retain some significance in terms of meaningful inferences, therefore, they will be further examined in the discussion section. The final cleaned data for our model analysis contained 836 observations of 9 variables. The characteristics of those responses are presented in Table 1 below.
+
+```{rsetup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r,include = FALSE}
+library(foreign)
+library(tidyverse)
+library(broom)
+library(dplyr)
+data_raw <- read.dta("C:/Users/jeffr/Documents/Fall 2020/STA304/Final Project/Propensity/cchs-82M0013-E-2017-2018-Annual-component_F1.dta")
+data <- read.dta("C:/Users/jeffr/Documents/Fall 2020/STA304/Final Project/Propensity/cchs-82M0013-E-2017-2018-Annual-component_F1.dta")
+
+```
+```{r, echo=FALSE}
+##Raw data plotting
+##Rename columns of interest
+names(data_raw)[names(data_raw) == 'DHH_SEX'] <- 'Sex'
+names(data_raw)[names(data_raw) == 'DHHGAGE'] <- 'Age'
+names(data_raw)[names(data_raw) == 'EHG2DVH3'] <- 'Education'# Highest household education
+names(data_raw)[names(data_raw) == 'HWTDGHTM'] <- 'Height'
+names(data_raw)[names(data_raw) == 'HWTDGWTK'] <- 'Weight'
+names(data_raw)[names(data_raw) == 'FGU_005'] <- 'Heard_or_seen_Canadian_food_guide'
+names(data_raw)[names(data_raw) == 'DODIS'] <- 'Distress'
+names(data_raw)[names(data_raw) == 'DODEP'] <- 'Depression'
+names(data_raw)[names(data_raw) == 'DOACC'] <- 'Access_to_health_service'
+names(data_raw)[names(data_raw) == 'DOUCN'] <- 'Unmet_health_care_needs'
+names(data_raw)[names(data_raw) == 'SDCDGCB'] <- 'Birth_country'
+names(data_raw)[names(data_raw) == 'SDCDGCGT'] <- 'Race'
+names(data_raw)[names(data_raw) == 'DOINS'] <- 'Health_insurance_coverage'
+names(data_raw)[names(data_raw) == 'FSC_010'] <- 'Worried_food_run_out'
+names(data_raw)[names(data_raw) == 'FSCDVHFS'] <- 'Household_food_security_status'
+names(data_raw)[names(data_raw) == 'INCDGHH'] <- 'Household_income'
+names(data_raw)[names(data_raw) == 'FVCDVJUI'] <- 'Fruit_juice_consumption'
+##Look at the distribution of each variables next (Appendix 1)
+```
+```{r, include=FALSE}
+#Isolating variables for pie chart
+data_s = subset(data, select=c('FGU_015A', 'FGU_015B', 'FGU_015C', 'FGU_015D'))
+#data cleaning for Logistic Regression Analysis
+data <- subset(data, select = -FGU_015A)
+data <- subset(data, select = -FGU_015B)
+data <- subset(data, select = -FGU_015C)
+data <- subset(data, select = -FGU_015D)
+data <- subset(data, select = -FGU_010)
+#change column names
+names(data)[names(data) == 'DHH_SEX'] <- 'Sex'
+names(data)[names(data) == 'DHHGAGE'] <- 'Age'
+names(data)[names(data) == 'EHG2DVH3'] <- 'Education'# Highest household education
+names(data)[names(data) == 'HWTDGHTM'] <- 'Height'
+names(data)[names(data) == 'HWTDGWTK'] <- 'Weight'
+names(data)[names(data) == 'FGU_005'] <- 'Heard_or_seen_Canadian_food_guide'
+names(data)[names(data) == 'DODIS'] <- 'Distress'
+names(data)[names(data) == 'DODEP'] <- 'Depression'
+names(data)[names(data) == 'DOACC'] <- 'Access_to_health_service'
+names(data)[names(data) == 'DOUCN'] <- 'Unmet_health_care_needs'
+names(data)[names(data) == 'SDCDGCB'] <- 'Birth_country'
+names(data)[names(data) == 'SDCDGCGT'] <- 'Race'
+names(data)[names(data) == 'DOINS'] <- 'Health_insurance_coverage'
+names(data)[names(data) == 'FSC_010'] <- 'Worried_food_run_out'
+names(data)[names(data) == 'FSCDVHFS'] <- 'Household_food_security_status'
+names(data)[names(data) == 'INCDGHH'] <- 'Household_income'
+names(data)[names(data) == 'FVCDVJUI'] <- 'Fruit_juice_consumption'
+```
+```{r, include=FALSE}
+sum(is.na(data$Sex))
+sum(is.na(data$Age))
+sum(is.na(data$Education))
+sum(is.na(data$Height))
+sum(is.na(data$Weight))
+sum(is.na(data$Distress))
+sum(is.na(data$Depression))
+sum(is.na(data$Access_to_health_service))
+sum(is.na(data$Unmet_health_care_needs))
+sum(is.na(data$Birth_country))
+sum(is.na(data$Race))
+sum(is.na(data$Health_insurance_coverage))
+sum(is.na(data$Food_security))
+sum(is.na(data$Household_income))
+sum(is.na(data$Worried_food_run_out))
+data <- subset(data, select = -Height)
+data <- subset(data, select = -Weight)
+data <- subset(data, select = -Race)
+data= na.omit(data)#omit all nas
+```
+```{r, include=FALSE}
+unique(data$Sex)
+unique(data$Education)
+unique(data$Distress)
+data <- subset(data, select = -Distress)# only  yes
+unique(data$Depression)#only no
+data <- subset(data, select = -Depression)
+unique(data$Access_to_health_service)
+data <- subset(data, select = -Access_to_health_service)# only no
+unique(data$Unmet_health_care_needs)
+data <- subset(data, select = -Unmet_health_care_needs)# only no
+unique(data$Birth_country)
+unique(data$Health_insurance_coverage)#only no
+data <- subset(data, select = -Health_insurance_coverage)
+unique(data$Worried_food_run_out)#has only one level
+unique(data$Household_food_security_status)
+unique(data$Household_income)
+#change variables levels
+levels(data$Age)[levels(data$Age)=='Age between 15 and 17'] <- 'Young Adult'
+levels(data$Age)[levels(data$Age)=='Age between 18 and 19'] <- 'Young Adult'
+levels(data$Age)[levels(data$Age)=='Age between 20 and 24'] <- 'Young Adult'
+levels(data$Age)[levels(data$Age)=='Age between 25 and 29'] <- 'Adult'
+levels(data$Age)[levels(data$Age)=='Age between 30 and 34'] <- 'Adult'
+levels(data$Age)[levels(data$Age)=='Age between 35 and 39'] <- 'Adult'
+levels(data$Age)[levels(data$Age)=='Age between 40 and 44'] <- 'Middle Age'
+levels(data$Age)[levels(data$Age)=='Age between 45 and 49'] <- 'Middle Age'
+levels(data$Age)[levels(data$Age)=='Age between 50 and 54'] <- 'Middle Age'
+levels(data$Age)[levels(data$Age)=='Age between 55 and 59'] <- 'Middle Age'
+levels(data$Age)[levels(data$Age)=='Age between 60 and 64'] <- 'Old'
+levels(data$Age)[levels(data$Age)=='Age between 65 and 69'] <- 'Old'
+levels(data$Age)[levels(data$Age)=='Age between 70 and 74'] <- 'Old'
+levels(data$Age)[levels(data$Age)=='Age between 75 and 79'] <- 'Old'
+levels(data$Age)[levels(data$Age)=='Age 80 and older'] <- 'Old'
+```
+```{r, echo=FALSE}
+#table1
+library(tableone)
+data_d= data
+listVars <- c("Sex", "Age", "Education", "Birth_country", "Worried_food_run_out", "Household_food_security_status", 
+"Household_income")
+catVars <- c("Sex", "Age", "Education", "Birth_country", "Worried_food_run_out", "Household_food_security_status", 
+"Household_income")
+table1 <- CreateTableOne(listVars, data_d, catVars, strata = c("Heard_or_seen_Canadian_food_guide"))
+kableone(table1, caption='Baseline Characteristics Table')
+```
+  
+  As shown in Table 1, most respondents are highly educated Canadian born individuals aged 25 and over. Other noteworthy characteristics are the income status with 60% earning more than 80 000$ household income, and food security variables with most individuals reporting food security. Given the great disparity between income, education, and food security groups, it will be interesting to see if food guide awareness is associated with greater or lower levels of these variables.
+  Data for propensity score matching called 'data_matched' is a subset of the data used for the main logistic regression analysis.
+  
+**Models**
+
+*Logistic Regression Analysis*
+
+  This model was created in RStudio. Given the categorical nature of the data, meaning that the response variable "heard or seen of Canadian food guide" is qualitative and measured as 'yes' or 'no', a binary logistic regression model was employed. This logistic regression model allows predictions of categorical variable levels instead of continuous quantitative measurements for which linear regression models may be more appropriate.
+  To build this model, an initial full model containing all the pre-selected variables was created. An initial chi-square test was conducted between the response variable 'heard or seen Canadian food guide' and each independent variable to evaluate the significance of each variable (details in Appendix 2). This was for visualization purposes and no variable was removed for insignificant p-values. However, it was noticeable that the two food security variables were statistically insignificant p-value > 0.1. Subsequently, stepwise backwards selection was employed to simplify the model and remove any variables that did not contribute any meaningful information. Specifically, the significance of each variable was evaluated using the Chi-square ANOVA tests detailed in Appendix 3. ANOVA stands for analysis of variance and is used to examine the differences between two models (Wiley & Wiley, 2019). Indeed, it evaluates whether the new model without the variable of interest is any different from the base model. This comparison determines whether the variable of interest actually contributes any additional information to the model. Due to a small sample size, to avoid any Type II errors, a significance level of 0.1 was used instead of the conventional 0.05. Through this process a final model containing Sex, Age, Education, birth_country, and Household_income as the predictor variables was created. The formula for the model is as follows:
+
+\begin{gather*}
+\widehat{y}=\widehat{log(\frac{Pr(Heard\_or\_seen\_Canadian\_food\_guide = 1)}{Pr(Heard\_or\_seen\_Canadian\_food\_guide = 0})}=\\
+2.289-1.265*Sex_{Female}-2.421*Age_{Young\_Adult}-2.370*Age_{Adult}\\
+-2.956*Age_{Middle\_Age}-2.591*Age_{Old}\\
+-1.398*Education_{Secondary\_school\_graduation\_no\_post-secondary\_education}\\
+-1.697*Education_{Post-secondary\_certificate\_diploma\_or\_univ\_degree}\\
++2.379*Birth\_country_{Other}+0.243*Household\_income_{20,000\_to\_39,999}\\
+-0.502*Household\_income_{40,000\_to\_59,999}\\
+-2.807*Household\_income_{60,000\_to\_79,999}\\
+-0.861*Household\_income_{80,000\_or\_more}
+\end{gather*}
+
+The formula shows each predictors' levels' coefficient - also detailed in Appendix 4. The $\widehat{y}$ is the log odds of a specific individual having heard or seen Canada's food guide. A predictor's coefficient indicates that when all other factors are kept constant, the log odds of the people who have heard or seen Canada's food guide changes by its coefficient. For example, when all factors are kept constant and we compare a person's whose age is between 15 and 24 (Young adult) to someone aged between 25 and 39, the person aged between 25 and 39 (Adult) will have a higher log odds of having heard or seen Canada's food guide because the coefficient is -2.2809 greater than that of the young adult level (-2.4080). The greater the coefficient the more heavily outcome is positively affected (more likely to have heard or seen Canada's food guide), while negative coefficients have the opposite effect. 
+
+  Model diagnostics included verifying the AUC-ROC of the model as well as the prediction error. The area under the curve (AUC) and the curve called receiving operating characteristics (ROC) were employed to assess the performance of the model (Wiley & Wiley, 2019, Steen, 2020). This specific instrument is created for instances where predictors are ordinal, a type of categorical data. This tool was used without a validation using training/test data split because the initial sample size was greatly reduced and no section of the data could be spared for testing. As detailed in Appendix 5, the AUC-ROC of the final model is 0.88. Finally, a prediction error was calculated as shown in Appendix 6 and found to be 1.077413.
+  
+*Propensity Score Regression Analysis*
+
+  While the main logistic regression analysis focused on factors predicting awareness of Canada's Food Guide, the purpose of the PSM is to determine whether those who have heard or seen CFG have marked differences in their dietary habits. Essentially, this measures to a certain extent the effectiveness of the food guide as well as how well Canadians adhere to its suggestions. Based on the available data, the assigned treatment was 'heard or seen Canada's food guide' and the outcome observed was 'fruit juice consumption'. As mentioned previously, the 2007 CFG wrongfully suggested to Canadians that fruit juice could replace actual fruits and vegetables. Therefore, proper adherence to the food guide could suggest people to consume plenty fruits and vegetables which would result in people increasing their juice consumption. The analysis lies on the assumptions that propensity score matching can adjust for the differences between those who are not aware of CFG and those who are; therefore, any differences in fruit juice consumption can be attributed to the lack of or knowledge regarding the food guide effectively highlighting the 'true treatment effect'. Overall, there were 180 matches in the data. The propensity regression model is as follows:
+
+\begin{gather*}
+\widehat{y}=0.485+0.226*Hear\_or\_seen\_Canadian\_food\_guide_{no}+0.104*Sex_{Female}\\
++0.714*Age_{Young\_adult}+0.144*Age_{Adult}+0.016*Age_{Middle\_age}+0.0.254*Age\_Old\\
+-0.109*Education_{Secondary\_school\_graduation\_no\_post-secondary\_education}\\-0.213*Education_{Post-secondary\_certificate\_diploma\_or\_univ\_degree}\\-0.023*Birth\_country_{Other}-0.164*Household\_income_{20,000\_to\_39,999}\\
++0.485*Household\_income_{40,000\_to\_59,999}
+-0.215*Household\_income_{60,000\_to\_79,999}\\-0.311*Household\_income_{80,000\_or\_more}
+\end{gather*}
+
+  The summarized output from this formula will detail the significance of the predictors. Specifically, $\widehat{y}$ is the predicted amount of fruit juice consumed while the coefficients of the variables indicate the magnitude and direction of the variables' effects on juice consumption. Essentially, should 'heard or seen Canada's food guide' be significant then it could be reasonably inferred that knowledge of the food guide caused individuals to consume fruit juice differently.
+
+\newpage
+**RESULTS**
+
+  The model summary (Appendix 2) details the coefficients of each variable. Women are less likely to be aware of the food guide with a coefficient of -1.2994 compared to men. Additionally, while the coefficients seem similar between age groups, it appears as though Adults (aged between 25 and 39) are most likely to know about the guide. Furthermore, those born outside of Canada have a much higher chance of being aware of the guide with a coefficient of 2.3558. Finally, the overall trend suggests that those in households with lower total income are also more likely to have heard or seen of the food guide with coefficients of 0.2701 and -0.5151 for income brackets 20 000 to 39 999 and 40 000 to 59 999 respectively.
+  An additional analysis was run using Canada Food Guide usage variables and results are presented in the following pie chart. Of those who report using Canada's Food Guide, 7% use it to choose their food; 7% to determine the quality of food needed; 8% to plan meals or groceries; 15% to assess how well they and their families are eating; and 62% report more than one of the above reasons. This data and information will also be useful in the discussion on the effectiveness of the food guide as well as in the creation of more effective outreach strategies. Moreover, through the data cleaning process of the analysis, it was also determined that in the subset of those who responded either 'yes' or 'no' to having heard or seen Canada's Food Guide, all reported no difficulty accessing health services; no unmet health needs; yes to experiencing some form of distress; and no depression. Subsequently in the PSM, 'heard or seen Canada's Food Guide' was found to not be a significant predictor of fruit juice consumption with a p-value > 0.05 (Appendix 7). Finally, it is also important to consider that of those who reported to having seen or heard of Canada's Food Guide, approximately 59% also report using the food guide (calculations presented in Appendix 8).
+```{r, include=FALSE}
+#change variables levels
+levels(data$Heard_or_seen_Canadian_food_guide)[levels(data$Heard_or_seen_Canadian_food_guide)=="Yes"] <- 1
+levels(data$Heard_or_seen_Canadian_food_guide)[levels(data$Heard_or_seen_Canadian_food_guide)=="No"] <- 0
+```
+
+```{r, include=FALSE}
+#chi-square test first
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Sex)
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Age)
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Education)
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Birth_country)
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Worried_food_run_out)
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Household_food_security_status)
+chisq.test(data$Heard_or_seen_Canadian_food_guide, data$Household_income)
+```
+```{r, include=FALSE}
+library(MASS)
+model_full <- glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                    Birth_country+
+                    Worried_food_run_out+
+                    Household_food_security_status+
+                    Household_income,family = binomial, 
+                  data = data)
+summary(model_full)
+```
+```{r, include=FALSE}
+#model selection
+model_no_sex = glm(data$Heard_or_seen_Canadian_food_guide~
+                    Age+Education+
+                    Birth_country+
+                    Worried_food_run_out+
+                    Household_food_security_status+
+                    Household_income,family = binomial, 
+                  data = data)
+anova(model_no_sex, model_full, test = 'Chisq')
+#sex is significant 
+model_no_age = glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Education+
+                    Birth_country+
+                      Worried_food_run_out+
+                    Household_food_security_status+
+                     Household_income,family = binomial, 
+                  data = data)
+anova(model_no_age, model_full, test = 'Chisq')
+#age is significant
+model_no_edu = glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+
+                    Birth_country+
+                      Worried_food_run_out+
+                    Household_food_security_status+
+                     Household_income,family = binomial, 
+                  data = data)
+anova(model_no_edu, model_full, test = 'Chisq') #education is significant
+model_no_Birth_country = glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                       Worried_food_run_out+
+                    Household_food_security_status+
+                    Household_income,family = binomial, 
+                  data = data)
+anova(model_no_Birth_country,model_full, test = 'Chisq')#Birth country is significant
+model_no_Household_income = glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                    Birth_country+Worried_food_run_out+
+                    Household_food_security_status,family = binomial, 
+                  data = data)
+anova(model_no_Household_income, model_full, test = 'Chisq')#Household income is significant
+model_no_worry = glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                    Birth_country+
+                    Household_food_security_status+
+                    Household_income,family = binomial, 
+                  data = data)
+anova(model_no_worry, model_full, test = 'Chisq')#worry is not significant
+model_no_food_sec = glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                    Birth_country+
+                    Household_income,family = binomial, 
+                  data = data)
+anova(model_no_food_sec, model_no_worry, test = 'Chisq')
+#Final model
+model_final =   glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                    Birth_country+Household_income,family = binomial, 
+                  data = data)
+```
+```{r,include=FALSE}
+#model check
+### ROC curve ###
+library(pROC)
+pred.prob <- predict(model_final, type = "response")
+## The True Positive Rate ##
+p = fitted(model_final)
+roc_logit = roc(data$Heard_or_seen_Canadian_food_guide~p)
+TPR <- roc_logit$sensitivities
+## The False Positive Rate ##
+FPR <- 1 - roc_logit$specificities
+plot(FPR, TPR, xlim = c(0,1), ylim = c(0,1), type = 'l', lty = 1, 
+ lwd = 2,col = 'red')
+abline(a = 0, b = 1, lty = 2, col = 'blue')+
+text(0.7,0.4,label = paste("AUC = ", round(auc(roc_logit),2)))
+```
+```{r,include=FALSE}
+#Check predictions
+data$logodds_estimate <-
+  model_final%>%
+  predict(newdata = data)
+data$estimate <- exp(data$logodds_estimate)/(1+exp(data$logodds_estimate))
+#Prediction error
+mean((as.numeric(data$Heard_or_seen_Canadian_food_guide) - data$estimate)^2)
+```
+```{r,include=FALSE}
+#propensity score matching
+#Code from Caetano, SJ. 2020
+#propensity score
+propensity_score <- glm(data$Heard_or_seen_Canadian_food_guide~Sex+
+                    Age+Education+
+                    Birth_country+Household_income,family = binomial, 
+                  data = data)
+# We will now add our forecast to our dataset.
+
+data <- 
+  augment(propensity_score, 
+          data = data,
+          type.predict = "response") %>% 
+  dplyr::select(-.resid, -.std.resid, -.hat, -.sigma, -.cooksd) 
+data <- 
+  data %>% 
+  arrange(.fitted, Heard_or_seen_Canadian_food_guide)
+data$treated <- 
+  if_else(data$Heard_or_seen_Canadian_food_guide == 0, 0, 1)
+data$treated <- 
+  as.integer(data$treated)
+matches <- arm::matching(z = data$treated, 
+                         score = data$.fitted)
+data <- cbind(data, matches)
+data_matched <- 
+  data %>% 
+  filter(match.ind != 0) %>% 
+  dplyr::select(-match.ind, -pairs, -treated)
+head(data_matched)
+propensity_score_regression <- 
+  lm( Fruit_juice_consumption ~  Heard_or_seen_Canadian_food_guide+Sex+
+                    Age+Education+
+                    Birth_country+Household_income,
+                data = data_matched)
+huxtable::huxreg(propensity_score_regression)
+```
+```{r,include=FALSE}
+#Further Analysis
+#Clean data_sub
+names(data_s)[names(data_s) == 'FGU_015A'] <- 'Choose_food'
+names(data_s)[names(data_s) == 'FGU_015B'] <- 'Determine_quantity_food_need'
+names(data_s)[names(data_s) == 'FGU_015C'] <- 'Plan_meals_or_grocery_shopping'
+names(data_s)[names(data_s) == 'FGU_015D'] <- 'assess_how_well_household_members_are_eating'
+data_s = na.omit(data_s)
+ggplot(data =data_s, aes(x =Choose_food ))+geom_bar()
+ggplot(data =data_s, aes(x =Determine_quantity_food_need ))+geom_bar()
+ggplot(data =data_s, aes(x =Plan_meals_or_grocery_shopping))+geom_bar()
+ggplot(data =data_s, aes(x =assess_how_well_household_members_are_eating))+geom_bar()
+```
+```{r,include=FALSE}
+#make a pie chart
+sum(data_s$Choose_food == 'Yes'&data_s$Determine_quantity_food_need == 'No'&data_s$Plan_meals_or_grocery_shopping == 'No'&data_s$assess_how_well_household_members_are_eating == 'No')
+sum(data_s$Choose_food == 'No'&data_s$Determine_quantity_food_need == 'Yes'&data_s$Plan_meals_or_grocery_shopping == 'No'&data_s$assess_how_well_household_members_are_eating == 'No')
+sum(data_s$Choose_food == 'No'&data_s$Determine_quantity_food_need == 'No'&data_s$Plan_meals_or_grocery_shopping == 'Yes'&data_s$assess_how_well_household_members_are_eating == 'No')
+sum(data_s$Choose_food == 'No'&data_s$Determine_quantity_food_need == 'No'&data_s$Plan_meals_or_grocery_shopping == 'No'&data_s$assess_how_well_household_members_are_eating == 'Yes')
+443-32-33-34-68
+```
+```{r,include=FALSE}
+# Simple Pie Chart
+slices <- c(32,33,34,68,276)
+lbls <- c("Choose food", "Determine quantity of food needed", "Plan meals or grocery shopping", "Assess how well household members are eating", "More than one reason")
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+pie(slices,labels = lbls
+   ,main="Usage of Canada's Food Guide")
+```
+```{r,include=FALSE}
+#Proportion of seen/heard who use CFG
+a <- sum(data$Heard_or_seen_Canadian_food_guide==1)
+#Data_sub contains the number of individuals who reported using CFG
+443/a
+```
+```{r, echo=FALSE, fig.cap="Distributions of Canadian's Food Guide Usage"}
+pie(slices,labels = lbls
+   ,cex = 0.6)
+```
+
+\newpage
+**DISCUSSION**
+
+**Summary**
+
+  Firstly, the survey data was retrieved as a subset of the 2017-2018 CCHS. The initial variables of interest were numerous and included factors relating to mental health, food security, access to healthcare as well as general demographic information like income, age, and sex. The variables relating to food guide use and dietary habits were interesting and saved for supplemental analysis. While observations with NA as the response were eliminated, insignificant variables or variables with too few response levels were also eliminated. Subsequently, the age category was simplified into 4 broader age brackets. An initial model was constructed, each predictor's significance was examined, and then the model was simplified using stepwise backwards selection. The final model included age, sex, household income, country of birth, and education variable and appendix 1 shows the coefficients of the model. Additionally, supplemental analyses included PSM, which evaluated the relationship between awareness of CFG and increased consumption of fruit juice; a brief calculation of the food guide usage; and an examination of CFG's awareness-to-usage rate. The association between CFG awareness and fruit juice consumption was not significant in propensity score regression. Finally, the proportion of those who heard or seen the food guide and actually used the food guide was calculated (Appendix 6) and Of those who claimed to use the food guide, a pie chart, which presented how the guide is generally used, was generated. 
+
+**Conclusions**
+
+  When it comes to factors predicting awareness of Canada's Food Guide, through the logistic regression it is suggested that lower household income and being born outside of Canada are factors associated with increased likelihood of being aware of CFG. Variations between age groups, gender, and education attainment while present are not as great in magnitude. Nonetheless, it is surprising that being born outside of Canada and earning lower household income are associated with CFG awareness. A possibility explaining that being born outside of Canada is associated with increased awareness is that those arriving from foreign countries have greater incentive and motivation to learn about Canada and assimilate into the country. On the other hand, lower income families may be incentivized by the health benefits of food guide diets; that is, they may not be able to afford the resources to undergo various health treatments and are therefore more cautious of their dietary habits. Furthermore, in the data cleaning process, various variables like access to health services, unmet health care needs, distress, depression were found to only contain one level of response; that is, all respondents regardless of whether they were aware or not of CFG had that same answer for that category. This is important to consider because factors that do not affect awareness are eliminated from consideration. Indeed, since all responses for unmet health care needs and for difficulty accessing health care were 'no', then access and awareness to CFG is not inhibited by any limitations of the healthcare system. Similarly, distress and depression also do not factor into awareness of the food guide. Based on this information, it is suggested that food guide access is not generally restricted, after all it is a free online resource; however, populations with incentive - financial or social - express increased awareness. From this logisitic regression model analysis, it then becomes evident that there are no apparent factors limiting awareness regarding CFG; however, groups can be pushed to educate themselves. 
+  The PSM and the first part of the supplemental analysis illustrated that awareness of CFG did not cause any changes in dietary habits. This suggests a low adherence rate to the food guide. The exact reasons, though, for the low adherence rate are unclear. In the second part of the supplemental analysis, it was observed that most of those who did utilize the guide did so for many reasons. This suggests that when adherence is active, it is consistent and relevant to people's lifestyles. Finally, the awareness-to-usage rate of the guide was calculated and found to be 59%, slightly greater than a coin toss. These results together suggest that (1) people can be incentivized financially and socially to educate themselves; (2) the food guide has a low adherence rate; and (3) when people do adhere to the guide, they do so consistently and for many different reasons. Given the suggestions 1,2, and 3, it becomes evident that the food guide must become not only more relevant to Canadians individually, which can increase interest and adherence, but also more practical and easier to adhere to.
+  Based on these findings, future outreach programs of the CFG should aim to convince individuals and families of its practicality in the context of every culture's habits as well as the immense health benefits of adopting evidence-based dietary practices. Moreover, the guide should also implement broader and easier-to-follow suggestions as well as personalized suggestions for different groups of people. These adjustments would not only make the guide more attractive and interesting but also increase adherence.
+  Interestingly, many of these changes have already been adopted by the updated 2019 guide; that is, the guide is simpler, offered in many languages, caters to all cultures, and encourages easy daily changes in habits that improve diet and health. Indeed, the food categories were abandoned and now Canadians are encouraged to follow a general guideline when selecting foods (e.g. eat more vegetables, decrease sugar, have meals with loved ones, drink more water, move towards plant-based proteins, etc.). However, outreach can still be improved and Canadians should be pushed to learn of the health consequences of improper diets. Additionally, in the age of Internet, many still choose to find information from non-reputable sources regarding diet and lifestyle improvements which can not only negatively impact population health, but also decrease traffic towards governmental resources. To address this, government of Canada should increase its online presence through larger more comprehensive marketing programs.
+
+*Limitations and Next Steps*
+
+  In this analysis, a major limitation is the analyzable sample size. Indeed, while the survey collected responses from over 110 000 individuals, after removal of NA responses from the selected variables, only approximately 800 observations remained. While the sample size was statistically sufficient for analysis, a larger sample size may increase the confidence in the model. Furthermore, a reduced sample size also drastically reduced the number of variables that could be included in the model, thereby reducing the number of factors that could be considered; however, this was slightly compensated for by a discussion of variables like access to health services, unmet health needs, distress, and depression. The PSM was also further limited by the reduced sample size. Matching for propensity score further reduced the sample reducing the confidence in the results. Additionally, a general limitation of logistic regression models are the defined levels of each categorical variable considered. That is, age was broadened to four conventional categories; however, these categories remain arbitrary and consequently the meaningfulness of our model and results are reduced. In terms of PSM, the analysis is limited due to only adjusting for observed covariates (many hidden factors could be affecting the model) and the fact that the sample was so small that likely there was no distributional balance of the observations. All these factors, including bias, reduce the meaning and confidence of the results.
+  Further, another limitation in the context of the purpose of the study is that the 2017-2018 CCHS could only measure food guide responses regarding the 2007 guide. This information is effective for predicting possible outreach issues of the 2019 guide as well as inform improvements however, future studies should focus on the limitations and factors affecting awareness of the 2019 food guide. The data should become available in the 2019-2020 CCHS which should publish within the next year. Also, future studies should aim to increase sample size and responses regarding CFG questions. This would increase the generalizability of the findings, ensure distributional balance when performing PSM, and allow for the analysis of more variables in the models (Caetano, 2020); all of which lead to more precise conclusions and better informed policies. Finally, in the same context, other studies could examine food guide knowledge and adherence with surveys specifically designed to gather information regarding knowledge of the food guide and respondents' characteristics and dietary habits.
+  
+
+\newpage
+## REFERENCES
+
+1. "The 10 leading causes of death, 2011." StatsCan. 2011. https://www150.statcan.gc.ca/n1/pub/82-625-x/2014001/article/11896-eng.htm
+
+2. "History of Canada's Food Guides from 1942 to 2007." Government of Canada. 2007. https://www.canada.ca/en/health-canada/services/canada-food-guide/about/history-food-guide.html
+
+3. "Canada's Food Guide." Government of Canada. 2019. https://food-guide.canada.ca/en/
+
+4. Wiley, M., & Wiley, J.F. (2019) Advanced R statistical programming and data models: Analysis, machine learning, and visualization. New York: APRESS.
+
+5. "Understanding the ROC Curve and AUC." Doug Steen. TowardsDataScience. 2020. https://towardsdatascience.com/understanding-the-roc-curve-and-auc-dd4f9a192ecb
+
+6. Caetano, SJ. (2020) Propensity Score Matching - Theory. [Video]. Retrieved from https://web.microsoftstream.com/video/53989ba9-82ec-4fcb-96bf-56d2e3cc3f9c
+
+7.  Caetano, SJ.(2020) Propensity Score Matching - R Code. [Video]. Retrieved from https://web.microsoftstream.com/video/55020107-a6a6-4b01-b926-957735d62c33
+
+\newpage
+## APPENDIX
+
+**Appendix 1**
+
+```{r, echo=FALSE, fig.cap='Distribution of People Having Heard or Seen CFG'}
+ggplot(data =data_raw, aes(x = Heard_or_seen_Canadian_food_guide))+geom_bar()
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Gender'}
+ggplot(data =data_raw, aes(x =Sex ))+geom_bar()
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Age'}
+ggplot(data =data_raw, aes(x =Age ))+geom_bar()+theme(axis.text = element_text(size = 5, angle = 90))
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Education Attainment'}
+ggplot(data =data_raw, aes(x =Education))+geom_bar()+theme(axis.text = element_text(size = 5, angle = 90))
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Country of Birth'}
+ggplot(data =data_raw, aes(x =Birth_country))+geom_bar()
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Those Who Have Been Worried Food Would Run Out'}
+ggplot(data =data_raw, aes(x =Worried_food_run_out))+geom_bar()
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Food Security'}
+ggplot(data =data_raw, aes(x =Household_food_security_status))+geom_bar()
+```
+
+```{r, echo=FALSE, fig.cap='Distribution of Household Income'}
+ggplot(data =data_raw, aes(x =Household_income))+geom_bar()+theme(axis.text = element_text(size = 5, angle = 90))
+```
+\newpage
+
+
+
+
+
+
+**Appendix 2**
+
+```{r, echo=FALSE}
+library(knitr)
+ano_table <- matrix(c(4.135e-07, 7.527e-10,7.99e-06,3.613e-13,0.7582,0.2942,5.087e-05
+),ncol=1, nrow =7, byrow = T )
+colnames(ano_table) <- c('Heard_or_seen_Canadian_food_guide')
+rownames(ano_table)<-c("Sex", 'Age', 'Education', 
+                         'Birth_country','Worried_food_run_out',
+                         'Household_food_security_status',
+                        'Household_income')
+kable(data.frame(ano_table), caption = "Pvalues for Categorical Variables Associations")
+```
+
+
+**Appendix 3**
+
+```{r, echo=FALSE}
+ano_table <- matrix(c(2.026e-06, 7.871e-10,0.0001064,6.814e-14,5.957e-05,0.5548, 0.2163
+),ncol=1, nrow =7, byrow = T )
+colnames(ano_table) <- c('P-Values')
+rownames(ano_table)<-c("Model delete Sex", 'Model delete Age', 
+                       'Model delete Education', 
+                       'Model delete Birth_country',
+                        'Model delete Household_income',
+                       'Model delete Worried_food_run_out',
+                        'Model delete Household_food_security_status')
+kable(data.frame(ano_table), caption = "Pvalues for Categorical Variables Associations")
+```
+\newpage
+
+**Appendix 4**
+
+```{r, echo=FALSE}
+summ = broom::tidy(model_final)
+kable(data.frame(summ), caption = 'Summary Table for Final Model')
+```
+\newpage
+**Appendix 5**
+
+```{r, echo=FALSE}
+plot(FPR, TPR, xlim = c(0,1), ylim = c(0,1), type = 'l', lty = 1, lwd = 2,col = 'red')
+abline(a = 0, b = 1, lty = 2, col = 'blue')+
+text(0.7,0.4,label = paste("AUC = ", round(auc(roc_logit),2)))
+```
+
+**Appendix 6**
+
+```{r}
+#Check predictions
+data$logodds_estimate <-
+  model_final%>%
+  predict(newdata = data)
+data$estimate <- exp(data$logodds_estimate)/(1+exp(data$logodds_estimate))
+#Prediction error
+mean((as.numeric(data$Heard_or_seen_Canadian_food_guide) - data$estimate)^2)
+```
+\newpage
+**Appendix 7**
+
+```{r, echo=FALSE}
+r = huxtable::huxreg(propensity_score_regression)
+kable(r)
+```
+
+**Appendix 8**
+
+```{r}
+#Proportion of seen/heard who use CFG
+a <- sum(data$Heard_or_seen_Canadian_food_guide==1)
+#Data_sub contains the number of individuals who reported using CFG
+443/a
+```
+
+
